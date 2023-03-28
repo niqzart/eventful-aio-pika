@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "eventful-aio-pika"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 authors = ["niqzart <qwert45hi@yandex.ru>"]
 readme = "README.md"
 packages = [{include = "eventful_aio_pika"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 aio-pika = "^9.0.5"
 
 [tool.poetry.group.dev.dependencies]
