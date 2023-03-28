@@ -33,7 +33,7 @@ class RabbitConsumer:
         logging.debug(f"New message", extra={"original_message": message})
 
         event_header: Any | None = message.headers.get("event_name")
-        if not isinstance(event_header, str):
+        if event_header is not None and not isinstance(event_header, str):
             await message.reject()
             logging.warning(f"Wrong header type '{type(event_header)}'")
             return
