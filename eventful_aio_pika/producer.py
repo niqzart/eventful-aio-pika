@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from abc import ABC
 from collections.abc import Sequence
 from typing import Any
 
@@ -41,15 +42,17 @@ class AbstractRabbitProducer:
         )
 
 
-class RabbitExchangeProducer(AbstractRabbitProducer):
+class RabbitExchangeProducer(AbstractRabbitProducer, ABC):
     def __init__(self) -> None:
         self.exchange: AbstractExchange | None = None
 
     def is_uninitialized(self) -> bool:
         return self.exchange is None
 
-    async def send_message(self, message: Message, **kwargs: Any) -> None:
-        await self.exchange.publish(message=message, **kwargs)
+    async def send_message(
+        self, message: Message, routing_key: str = "", **kwargs: Any
+    ) -> None:
+        await self.exchange.publish(message=message, routing_key=routing_key, **kwargs)
 
 
 class RabbitDirectProducer(RabbitExchangeProducer):
@@ -61,6 +64,10 @@ class RabbitDirectProducer(RabbitExchangeProducer):
         channel: AbstractChannel = await connection.channel()
         self.exchange = channel.default_exchange
         await channel.declare_queue(self.queue)
+
+    async def send_message(self, message: Message, **kwargs: Any) -> None:
+        kwargs["routing_key"] = self.queue
+        return await self.send_message(message, **kwargs)
 
 
 class RabbitFanoutProducer(RabbitExchangeProducer):
